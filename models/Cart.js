@@ -1,56 +1,49 @@
+const { getDatabase } = require("../database");
 const Product = require("./Product");
 
 class Cart {
   constructor() {}
 
-  static #items = [];
+  static COLLECTION_NAME = "carts"; 
 
-  static add(productName) {
-    const product = Product.findByName(productName);
+  static async add(productName) {
+    const db = getDatabase();
+    const product = await Product.findByName(productName);
 
     if (!product) {
-      throw new error(`Product '${productName}' not found.`);
+      throw new Error(`Product '${productName}' not found.`);
     }
 
-    if (!this.#items.length) {
-      this.#items.push({ product, quantity: 1 });
-
-      return;
-    }
-
-    const existingProduct = this.#items.find(
-      (item) => item.product.name === productName
+    return db.collection(this.COLLECTION_NAME).updateOne(
+      { "product.name": productName },
+      { $inc: { quantity: 1 }, $setOnInsert: { product } },
+      { upsert: true } 
     );
-
-    if (existingProduct) {
-      existingProduct.quantity += 1;
-    } else {
-      this.#items.push({ product, quantity: 1 });
-    }
   }
 
   static getItems() {
-    return this.#items;
+    const db = getDatabase();
+    return db.collection(this.COLLECTION_NAME).find().toArray(); 
   }
 
   static getProductsQuantity() {
-    if (!this.#items?.length) {
-      return 0;
-    }
-
-    return this.#items.reduce((total, item) => {
-      return total + item.quantity;
-    }, 0);
+    const db = getDatabase();
+    return db.collection(this.COLLECTION_NAME).aggregate([
+      { $group: { _id: null, totalQuantity: { $sum: "$quantity" } } },
+    ]).toArray().then((result) => (result[0] ? result[0].totalQuantity : 0)); 
   }
 
   static getTotalPrice() {
-    return this.#items.reduce((total, item) => {
-      return total + item.product.price * item.quantity;
-    }, 0);
+    const db = getDatabase();
+    return db.collection(this.COLLECTION_NAME).aggregate([
+      { $project: { totalPrice: { $multiply: ["$product.price", "$quantity"] } } },
+      { $group: { _id: null, total: { $sum: "$totalPrice" } } },
+    ]).toArray().then((result) => (result[0] ? result[0].total : 0)); 
   }
 
   static clearCart() {
-    this.#items = [];
+    const db = getDatabase();
+    return db.collection(this.COLLECTION_NAME).deleteMany({}); 
   }
 }
 
