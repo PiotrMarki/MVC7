@@ -1,7 +1,7 @@
 const Product = require("../models/Product");
 const Cart = require("../models/Cart");
 
-const { STATUS_CODE } = require("../MVC7/constants/statusCode");
+const { STATUS_CODE } = require("../constants/statusCode");
 
 exports.addProductToCart = (request, response) => {
   Product.add(request.body);
