@@ -1,7 +1,7 @@
 const Product = require("../models/Product");
 
-const { MENU_LINKS } = require("../MVC7/constants/navigation");
-const { STATUS_CODE } = require("../MVC7/constants/statusCode");
+const { MENU_LINKS } = require("../constants/navigation");
+const { STATUS_CODE } = require("../constants/statusCode");
 
 const cartController = require("./cartController");
 

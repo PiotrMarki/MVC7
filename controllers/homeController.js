@@ -1,4 +1,4 @@
-const { MENU_LINKS } = require("../MVC7/constants/navigation");
+const { MENU_LINKS } = require("../constants/navigation");
 
 const cartController = require("./cartController");
 

@@ -1,4 +1,4 @@
-const { LOGOUT_LINKS } = require("../MVC7/constants/navigation");
+const { LOGOUT_LINKS } = require("../constants/navigation");
 const logger = require("../utils/logger");
 
 const cartController = require("./cartController");
